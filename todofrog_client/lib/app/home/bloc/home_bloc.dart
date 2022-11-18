@@ -10,27 +10,30 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     final repository = TodoRepo();
     var todo = <Todo>[];
 
-    Future<void> refresh() async {
-      todo = await repository.read();
-    }
+    Future<void> refresh() async => todo = await repository.read();
 
     on<LoadTodo>((event, emit) async {
+      String? message;
       try {
         await refresh();
-        emit(HomeLoaded(todo: todo, message: 'Todo Loaded'));
+        if (event.show) message = 'Todo Loaded';
+        emit(HomeLoaded(todo: todo, message: message));
       } catch (e) {
         emit(HomeError(message: e.toString()));
       }
     });
 
     on<CreateTodo>((event, emit) async {
+      String? message;
       try {
         final data = await repository.create(event.todo);
         if (data) {
           await refresh();
-          emit(HomeLoaded(todo: todo, message: 'Todo Added'));
+          if (event.show) message = 'Todo Added';
+          emit(HomeLoaded(todo: todo, message: message));
         } else {
-          emit(HomeLoaded(todo: todo, message: 'Todo Not Added'));
+          if (event.show) message = 'Todo Not Added';
+          emit(HomeLoaded(todo: todo, message: message));
         }
       } catch (e) {
         emit(HomeError(message: e.toString()));
@@ -38,13 +41,16 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     });
 
     on<UpdateTodo>((event, emit) async {
+      String? message;
       try {
         final data = await repository.update(event.todo);
         if (data) {
           await refresh();
-          emit(HomeLoaded(todo: todo, message: 'Todo Updated'));
+          if (event.show) if (event.show) message = 'Todo Updated';
+          emit(HomeLoaded(todo: todo, message: message));
         } else {
-          emit(HomeLoaded(todo: todo, message: 'Todo Not Updated'));
+          if (event.show) message = 'Todo Not Updated';
+          emit(HomeLoaded(todo: todo, message: message));
         }
       } catch (e) {
         emit(HomeError(message: e.toString()));
@@ -52,13 +58,16 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     });
 
     on<DeleteTodo>((event, emit) async {
+      String? message;
       try {
         final data = await repository.delete(event.id);
         if (data) {
           await refresh();
-          emit(HomeLoaded(todo: todo, message: 'Todo Deleted'));
+          if (event.show) message = 'Todo Deleted';
+          emit(HomeLoaded(todo: todo, message: message));
         } else {
-          emit(HomeLoaded(todo: todo, message: 'Todo Not Deleted'));
+          if (event.show) message = 'Todo Not Deleted';
+          emit(HomeLoaded(todo: todo, message: message));
         }
       } catch (e) {
         emit(HomeError(message: e.toString()));

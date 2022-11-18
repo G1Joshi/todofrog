@@ -20,11 +20,11 @@ class HomeLoaded extends HomeState {
   });
 
   final List<Todo> todo;
-  final String message;
+  final String? message;
 }
 
 class HomeError extends HomeState {
   const HomeError({required this.message});
 
-  final String message;
+  final String? message;
 }

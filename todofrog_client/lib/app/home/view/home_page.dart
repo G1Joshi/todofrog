@@ -12,7 +12,7 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => HomeBloc()..add(const LoadTodo()),
+      create: (_) => HomeBloc()..add(const LoadTodo(show: false)),
       child: const HomeView(),
     );
   }
@@ -40,12 +40,16 @@ class MyHomePageState extends State<HomeView> {
         listener: (context, state) {
           if (state is HomeError) {
             final text = state.message;
-            final backgroundColor = Colors.red[300]!;
-            InfoBanner.showBanner(context, backgroundColor, text);
+            if (text != null) {
+              final backgroundColor = Colors.red[300]!;
+              InfoBanner.showBanner(context, backgroundColor, text);
+            }
           } else if (state is HomeLoaded) {
             final text = state.message;
-            final backgroundColor = Colors.green[300]!;
-            InfoBanner.showBanner(context, backgroundColor, text);
+            if (text != null) {
+              final backgroundColor = Colors.green[300]!;
+              InfoBanner.showBanner(context, backgroundColor, text);
+            }
           }
         },
         builder: (context, state) {
@@ -105,10 +109,24 @@ class MyHomePageState extends State<HomeView> {
                             ],
                           ),
                           child: ColoredBox(
-                            color: getShade(Colors.teal, todo.priority),
-                            child: ListTile(
+                            color: getShade(
+                              todo.isDone ?? false
+                                  ? Colors.blueGrey
+                                  : Colors.teal,
+                              todo.priority,
+                            ),
+                            child: CheckboxListTile(
                               title: Text(todo.title),
                               subtitle: Text(todo.description),
+                              value: todo.isDone,
+                              onChanged: (bool? value) {
+                                setState(() {
+                                  todo.isDone = !(todo.isDone ?? false);
+                                });
+                                context
+                                    .read<HomeBloc>()
+                                    .add(UpdateTodo(todo, show: false));
+                              },
                             ),
                           ),
                         ),
