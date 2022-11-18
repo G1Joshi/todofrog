@@ -1,5 +1,6 @@
 import 'package:dart_frog/dart_frog.dart';
 
 Response onRequest(RequestContext context) {
-  return Response(body: 'Welcome to Dart Frog!');
+  final method = context.request.method.value;
+  return Response(body: 'Hey there!, You made a $method request.');
 }
