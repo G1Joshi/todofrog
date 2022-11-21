@@ -9,11 +9,13 @@ class Client {
   late Dio _dio;
 
   void initClient() {
+    final token = Storage.prefs.getString('token');
     final dioOptions = BaseOptions(
       baseUrl: baseUrl,
       contentType: Headers.jsonContentType,
       headers: {
         Headers.acceptHeader: Headers.jsonContentType,
+        'Authorization': 'Bearer $token'
       },
     );
 

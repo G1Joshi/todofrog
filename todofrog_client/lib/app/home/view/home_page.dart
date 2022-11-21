@@ -35,113 +35,135 @@ class MyHomePageState extends State<HomeView> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Todo App'),
+        centerTitle: false,
+        actions: [
+          IconButton(
+            onPressed: () {
+              context.read<AuthBloc>().add(const Logout());
+            },
+            icon: const Icon(Icons.logout),
+          ),
+        ],
       ),
-      body: BlocConsumer<HomeBloc, HomeState>(
+      body: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) {
-          if (state is HomeError) {
-            final text = state.message;
-            if (text != null) {
-              final backgroundColor = Colors.red[300]!;
-              InfoBanner.showBanner(context, backgroundColor, text);
-            }
-          } else if (state is HomeLoaded) {
-            final text = state.message;
-            if (text != null) {
-              final backgroundColor = Colors.green[300]!;
-              InfoBanner.showBanner(context, backgroundColor, text);
-            }
+          if (state is UserLoggedOut) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute<AuthPage>(
+                builder: (context) => const AuthPage(),
+              ),
+            );
           }
         },
-        builder: (context, state) {
-          if (state is HomeLoaded) {
-            final data = state.todo;
-            if (data.isEmpty) {
-              return const CenterText(
-                'Todo Empty!!!\nPlease Add Some Todos First.',
-              );
-            } else {
-              return Padding(
-                padding: const EdgeInsets.all(8),
-                child: ListView.builder(
-                  itemCount: data.length,
-                  itemBuilder: (context, index) {
-                    final todo = data[index];
-                    return Padding(
-                      padding: const EdgeInsets.all(8),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(16),
-                        child: Slidable(
-                          endActionPane: ActionPane(
-                            motion: const StretchMotion(),
-                            children: [
-                              SlidableAction(
-                                onPressed: (_) {
-                                  titleController.text = todo.title;
-                                  descriptionController.text = todo.description;
-                                  priority = Priority(
-                                    name: getPriority(todo.priority),
-                                    value: todo.priority,
-                                  );
-                                  formDialog(
-                                    context,
-                                    titleController,
-                                    descriptionController,
-                                    priority,
-                                    id: todo.id,
-                                  );
-                                },
-                                backgroundColor:
-                                    getShade(Colors.blue, todo.priority),
-                                icon: Icons.edit,
-                                label: 'Edit',
+        child: BlocConsumer<HomeBloc, HomeState>(
+          listener: (context, state) {
+            if (state is HomeError) {
+              final text = state.message;
+              if (text != null) {
+                final backgroundColor = Colors.red[300]!;
+                InfoBanner.showBanner(context, backgroundColor, text);
+              }
+            } else if (state is HomeLoaded) {
+              final text = state.message;
+              if (text != null) {
+                final backgroundColor = Colors.green[300]!;
+                InfoBanner.showBanner(context, backgroundColor, text);
+              }
+            }
+          },
+          builder: (context, state) {
+            if (state is HomeLoaded) {
+              final data = state.todo;
+              if (data.isEmpty) {
+                return const CenterText(
+                  'Todo Empty!!!\nPlease Add Some Todos First.',
+                );
+              } else {
+                return Padding(
+                  padding: const EdgeInsets.all(8),
+                  child: ListView.builder(
+                    itemCount: data.length,
+                    itemBuilder: (context, index) {
+                      final todo = data[index];
+                      return Padding(
+                        padding: const EdgeInsets.all(8),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(16),
+                          child: Slidable(
+                            endActionPane: ActionPane(
+                              motion: const StretchMotion(),
+                              children: [
+                                SlidableAction(
+                                  onPressed: (_) {
+                                    titleController.text = todo.title;
+                                    descriptionController.text =
+                                        todo.description;
+                                    priority = Priority(
+                                      name: getPriority(todo.priority),
+                                      value: todo.priority,
+                                    );
+                                    formDialog(
+                                      context,
+                                      titleController,
+                                      descriptionController,
+                                      priority,
+                                      id: todo.id,
+                                    );
+                                  },
+                                  backgroundColor:
+                                      getShade(Colors.blue, todo.priority),
+                                  icon: Icons.edit,
+                                  label: 'Edit',
+                                ),
+                                SlidableAction(
+                                  onPressed: (_) {
+                                    context
+                                        .read<HomeBloc>()
+                                        .add(DeleteTodo(todo.id!));
+                                  },
+                                  backgroundColor:
+                                      getShade(Colors.red, todo.priority),
+                                  icon: Icons.delete,
+                                  label: 'Delete',
+                                ),
+                              ],
+                            ),
+                            child: ColoredBox(
+                              color: getShade(
+                                todo.isDone ?? false
+                                    ? Colors.blueGrey
+                                    : Colors.teal,
+                                todo.priority,
                               ),
-                              SlidableAction(
-                                onPressed: (_) {
+                              child: CheckboxListTile(
+                                title: Text(todo.title),
+                                subtitle: Text(todo.description),
+                                value: todo.isDone,
+                                onChanged: (bool? value) {
+                                  setState(() {
+                                    todo.isDone = !(todo.isDone ?? false);
+                                  });
                                   context
                                       .read<HomeBloc>()
-                                      .add(DeleteTodo(todo.id!));
+                                      .add(UpdateTodo(todo, show: false));
                                 },
-                                backgroundColor:
-                                    getShade(Colors.red, todo.priority),
-                                icon: Icons.delete,
-                                label: 'Delete',
                               ),
-                            ],
-                          ),
-                          child: ColoredBox(
-                            color: getShade(
-                              todo.isDone ?? false
-                                  ? Colors.blueGrey
-                                  : Colors.teal,
-                              todo.priority,
-                            ),
-                            child: CheckboxListTile(
-                              title: Text(todo.title),
-                              subtitle: Text(todo.description),
-                              value: todo.isDone,
-                              onChanged: (bool? value) {
-                                setState(() {
-                                  todo.isDone = !(todo.isDone ?? false);
-                                });
-                                context
-                                    .read<HomeBloc>()
-                                    .add(UpdateTodo(todo, show: false));
-                              },
                             ),
                           ),
                         ),
-                      ),
-                    );
-                  },
-                ),
-              );
+                      );
+                    },
+                  ),
+                );
+              }
+            } else if (state is HomeError) {
+              return const CenterText('Something Went Wrong!!!');
+            } else {
+              return const Loader();
             }
-          } else if (state is HomeError) {
-            return const CenterText('Something Went Wrong!!!');
-          } else {
-            return const Loader();
-          }
-        },
+          },
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => formDialog(
