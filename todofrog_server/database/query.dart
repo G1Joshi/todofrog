@@ -1,20 +1,6 @@
 import 'connection.dart';
 
 class Query {
-  static Future<void> table() async {
-    await (await Connection.getConnection).query(
-      '''
-        CREATE TABLE IF NOT EXISTS todos (
-            id serial,
-            title text NOT NULL,
-            description text NOT NULL,
-            priority integer NOT NULL,
-            is_done boolean NOT NULL
-        )
-      ''',
-    );
-  }
-
   static Future<void> create(String value) async {
     await (await Connection.getConnection).query(
       '''
@@ -55,6 +41,50 @@ class Query {
       '''
         DELETE FROM todos
         WHERE id = $id
+      ''',
+    );
+  }
+
+  static Future<bool> checkAccount(
+    String email,
+  ) async {
+    final result = await (await Connection.getConnection).query(
+      '''
+        SELECT *
+        FROM users
+        WHERE email = $email
+      ''',
+    );
+
+    return result.isNotEmpty;
+  }
+
+  static Future<bool> login(
+    String email,
+    String password,
+  ) async {
+    final result = await (await Connection.getConnection).query(
+      '''
+        SELECT *
+        FROM users
+        WHERE email = $email
+            AND password = $password
+      ''',
+    );
+
+    return result.isEmpty;
+  }
+
+  static Future<void> register(String value) async {
+    await (await Connection.getConnection).query(
+      '''
+        INSERT INTO users (
+                name,
+                email,
+                password,
+                is_active
+            )
+        VALUES ($value)
       ''',
     );
   }

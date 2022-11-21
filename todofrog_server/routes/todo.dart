@@ -2,22 +2,33 @@ import 'dart:io';
 
 import 'package:dart_frog/dart_frog.dart';
 
+import '../auth/jwt.dart';
 import '../database/database.dart';
 
 Future<Response> onRequest(RequestContext context) async {
-  switch (context.request.method) {
-    case HttpMethod.get:
-      return read();
-    case HttpMethod.post:
-      return create(context);
-    case HttpMethod.put:
-      return update(context);
-    case HttpMethod.delete:
-      return delete(context);
-    case HttpMethod.head:
-    case HttpMethod.options:
-    case HttpMethod.patch:
-      return Response(statusCode: HttpStatus.methodNotAllowed);
+  final headers = context.request.headers;
+  final isVerified = JwtService.verifyToken(headers);
+  if (isVerified) {
+    final method = context.request.method;
+    switch (method) {
+      case HttpMethod.get:
+        return read();
+      case HttpMethod.post:
+        return create(context);
+      case HttpMethod.put:
+        return update(context);
+      case HttpMethod.delete:
+        return delete(context);
+      case HttpMethod.head:
+      case HttpMethod.options:
+      case HttpMethod.patch:
+        return Response(statusCode: HttpStatus.methodNotAllowed);
+    }
+  } else {
+    return Response.json(
+      statusCode: HttpStatus.unauthorized,
+      body: <String, dynamic>{'error': 'User Is Not Authorized, Please Login'},
+    );
   }
 }
 
