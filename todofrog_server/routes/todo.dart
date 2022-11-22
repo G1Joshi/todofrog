@@ -4,6 +4,7 @@ import 'package:dart_frog/dart_frog.dart';
 
 import '../auth/jwt.dart';
 import '../database/database.dart';
+import '../models/general_response.dart';
 
 Future<Response> onRequest(RequestContext context) async {
   final headers = context.request.headers;
@@ -12,7 +13,7 @@ Future<Response> onRequest(RequestContext context) async {
     final method = context.request.method;
     switch (method) {
       case HttpMethod.get:
-        return read();
+        return read(context);
       case HttpMethod.post:
         return create(context);
       case HttpMethod.put:
@@ -27,23 +28,34 @@ Future<Response> onRequest(RequestContext context) async {
   } else {
     return Response.json(
       statusCode: HttpStatus.unauthorized,
-      body: <String, dynamic>{'error': 'User Is Not Authorized, Please Login'},
+      body: GeneralResponse(
+        status: false,
+        message: 'User Is Not Authorized, Please Login',
+      ),
     );
   }
 }
 
-Future<Response> read() async {
+Future<Response> read(RequestContext context) async {
+  final request = context.request;
+
   try {
-    final data = await Database.read();
+    final data = await Database.read(request);
 
     return Response.json(
       statusCode: HttpStatus.created,
-      body: <String, dynamic>{'data': data},
+      body: GeneralResponse(
+        status: true,
+        data: data,
+      ),
     );
   } catch (e) {
     return Response.json(
       statusCode: HttpStatus.badRequest,
-      body: <String, dynamic>{'error': '$e'},
+      body: GeneralResponse(
+        status: false,
+        data: e.toString(),
+      ),
     );
   }
 }
@@ -56,12 +68,18 @@ Future<Response> create(RequestContext context) async {
 
     return Response.json(
       statusCode: HttpStatus.created,
-      body: <String, dynamic>{'data': data},
+      body: GeneralResponse(
+        status: true,
+        data: data,
+      ),
     );
   } catch (e) {
     return Response.json(
       statusCode: HttpStatus.badRequest,
-      body: <String, dynamic>{'error': '$e'},
+      body: GeneralResponse(
+        status: false,
+        message: e.toString(),
+      ),
     );
   }
 }
@@ -74,12 +92,18 @@ Future<Response> update(RequestContext context) async {
 
     return Response.json(
       statusCode: HttpStatus.created,
-      body: <String, dynamic>{'data': data},
+      body: GeneralResponse(
+        status: true,
+        data: data,
+      ),
     );
   } catch (e) {
     return Response.json(
       statusCode: HttpStatus.badRequest,
-      body: <String, dynamic>{'error': '$e'},
+      body: GeneralResponse(
+        status: false,
+        message: e.toString(),
+      ),
     );
   }
 }
@@ -92,12 +116,18 @@ Future<Response> delete(RequestContext context) async {
 
     return Response.json(
       statusCode: HttpStatus.created,
-      body: <String, dynamic>{'data': data},
+      body: GeneralResponse(
+        status: true,
+        data: data,
+      ),
     );
   } catch (e) {
     return Response.json(
       statusCode: HttpStatus.badRequest,
-      body: <String, dynamic>{'error': '$e'},
+      body: GeneralResponse(
+        status: false,
+        message: e.toString(),
+      ),
     );
   }
 }

@@ -14,13 +14,15 @@ class Auth {
       throw ArgumentError('Please provide Password');
     }
 
-    final userExists =
-        await Query.login("'${req["email"]}'", "'${req["password"]}'");
-    if (userExists) return null;
+    try {
+      final userId =
+          await Query.login("'${req["email"]}'", "'${req["password"]}'");
+      final token = JwtService.generateToken({'user_id': userId});
 
-    final token = JwtService.generateToken(req);
-
-    return token;
+      return token;
+    } catch (e) {
+      return null;
+    }
   }
 
   static Future<bool> register(Request request) async {

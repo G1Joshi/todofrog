@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:dart_frog/dart_frog.dart';
 
 import '../auth/auth.dart';
+import '../models/general_response.dart';
 
 Future<Response> onRequest(RequestContext context) async {
   if (context.request.method == HttpMethod.post) {
@@ -20,21 +21,28 @@ Future<Response> login(RequestContext context) async {
 
     if (data == null) {
       return Response.json(
-        statusCode: HttpStatus.badRequest,
-        body: <String, dynamic>{'error': 'User Not Found, Please Register'},
+        statusCode: HttpStatus.nonAuthoritativeInformation,
+        body: GeneralResponse(
+          status: false,
+          message: 'User Not Found, Please Register',
+        ),
       );
     } else {
       return Response.json(
         statusCode: HttpStatus.created,
-        body: <String, dynamic>{
-          'data': {'token': data}
-        },
+        body: GeneralResponse(
+          status: true,
+          data: {'token': data},
+        ),
       );
     }
   } catch (e) {
     return Response.json(
       statusCode: HttpStatus.badRequest,
-      body: <String, dynamic>{'error': '$e'},
+      body: GeneralResponse(
+        status: false,
+        message: e.toString(),
+      ),
     );
   }
 }

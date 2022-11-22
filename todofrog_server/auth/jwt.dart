@@ -25,12 +25,26 @@ class JwtService {
     if (token != null) {
       try {
         JWT.verify(token, SecretKey(''));
+        return true;
       } catch (_) {
         return false;
       }
-      return true;
     } else {
       return false;
+    }
+  }
+
+  static Map<String, dynamic> getPayload(Map<String, String> headers) {
+    final token = _getToken(headers);
+    if (token != null) {
+      try {
+        final jwt = JWT.verify(token, SecretKey(''));
+        return jwt.payload as Map<String, dynamic>;
+      } catch (_) {
+        return {};
+      }
+    } else {
+      return {};
     }
   }
 }

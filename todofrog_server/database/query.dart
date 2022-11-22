@@ -5,6 +5,7 @@ class Query {
     await (await Connection.getConnection).query(
       '''
         INSERT INTO todos (
+                user_id,
                 title,
                 description,
                 priority,
@@ -15,11 +16,12 @@ class Query {
     );
   }
 
-  static Future<List<Map<String, Map<String, dynamic>>>> read() async {
+  static Future<List<Map<String, Map<String, dynamic>>>> read(int id) async {
     final results = await (await Connection.getConnection).mappedResultsQuery(
       '''
-        SELECT *
+        SELECT id, title, description, priority, is_done
         from todos
+        WHERE user_id = $id
       ''',
     );
 
@@ -50,29 +52,29 @@ class Query {
   ) async {
     final result = await (await Connection.getConnection).query(
       '''
-        SELECT *
+        SELECT COUNT(*)
         FROM users
         WHERE email = $email
       ''',
     );
 
-    return result.isNotEmpty;
+    return result.first.first != 0;
   }
 
-  static Future<bool> login(
+  static Future<int?> login(
     String email,
     String password,
   ) async {
     final result = await (await Connection.getConnection).query(
       '''
-        SELECT *
+        SELECT id
         FROM users
         WHERE email = $email
             AND password = $password
       ''',
     );
 
-    return result.isEmpty;
+    return result.first.first as int;
   }
 
   static Future<void> register(String value) async {

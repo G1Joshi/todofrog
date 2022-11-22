@@ -1,11 +1,14 @@
 import 'package:dart_frog/dart_frog.dart';
 
+import '../auth/jwt.dart';
 import 'query.dart';
 
 class Database {
   static Future<bool> create(Request request) async {
+    final headers = request.headers;
+    final payload = JwtService.getPayload(headers);
     final req = await request.json() as Map<String, dynamic>;
-    final todos = <String>[];
+    final todos = <String>['${payload['user_id']}'];
 
     for (final element in req.keys) {
       if (element == 'id') continue;
@@ -18,8 +21,10 @@ class Database {
     return true;
   }
 
-  static Future<List<Object>> read() async {
-    final results = await Query.read();
+  static Future<List<Object>> read(Request request) async {
+    final headers = request.headers;
+    final payload = JwtService.getPayload(headers);
+    final results = await Query.read(payload['user_id'] as int);
     final todos = <Object>[];
 
     for (final element in results) {
