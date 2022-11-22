@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:todofrog_client/config/config.dart';
 import 'package:todofrog_client/data/data.dart';
 
 part 'home_event.dart';
@@ -18,59 +19,44 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         await refresh();
         if (event.show) message = 'Todo Loaded';
         emit(HomeLoaded(todo: todo, message: message));
-      } catch (e) {
-        emit(HomeError(message: e.toString()));
+      } catch (_) {
+        emit(const HomeError(exception));
       }
     });
 
     on<CreateTodo>((event, emit) async {
       String? message;
       try {
-        final data = await repository.create(event.todo);
-        if (data) {
-          await refresh();
-          if (event.show) message = 'Todo Added';
-          emit(HomeLoaded(todo: todo, message: message));
-        } else {
-          if (event.show) message = 'Todo Not Added';
-          emit(HomeLoaded(todo: todo, message: message));
-        }
-      } catch (e) {
-        emit(HomeError(message: e.toString()));
+        await repository.create(event.todo);
+        await refresh();
+        if (event.show) message = 'Todo Added';
+        emit(HomeLoaded(todo: todo, message: message));
+      } catch (_) {
+        emit(const HomeError(exception));
       }
     });
 
     on<UpdateTodo>((event, emit) async {
       String? message;
       try {
-        final data = await repository.update(event.todo);
-        if (data) {
-          await refresh();
-          if (event.show) if (event.show) message = 'Todo Updated';
-          emit(HomeLoaded(todo: todo, message: message));
-        } else {
-          if (event.show) message = 'Todo Not Updated';
-          emit(HomeLoaded(todo: todo, message: message));
-        }
-      } catch (e) {
-        emit(HomeError(message: e.toString()));
+        await repository.update(event.todo);
+        await refresh();
+        if (event.show) if (event.show) message = 'Todo Updated';
+        emit(HomeLoaded(todo: todo, message: message));
+      } catch (_) {
+        emit(const HomeError(exception));
       }
     });
 
     on<DeleteTodo>((event, emit) async {
       String? message;
       try {
-        final data = await repository.delete(event.id);
-        if (data) {
-          await refresh();
-          if (event.show) message = 'Todo Deleted';
-          emit(HomeLoaded(todo: todo, message: message));
-        } else {
-          if (event.show) message = 'Todo Not Deleted';
-          emit(HomeLoaded(todo: todo, message: message));
-        }
-      } catch (e) {
-        emit(HomeError(message: e.toString()));
+        await repository.delete(event.id);
+        await refresh();
+        if (event.show) message = 'Todo Deleted';
+        emit(HomeLoaded(todo: todo, message: message));
+      } catch (_) {
+        emit(const HomeError(exception));
       }
     });
   }

@@ -24,7 +24,7 @@ class HomeLoaded extends HomeState {
 }
 
 class HomeError extends HomeState {
-  const HomeError({required this.message});
+  const HomeError(this.message);
 
   final String? message;
 }

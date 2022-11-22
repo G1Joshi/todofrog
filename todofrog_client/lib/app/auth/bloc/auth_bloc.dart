@@ -13,27 +13,19 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<Login>((event, emit) async {
       try {
         final data = await repository.login(event.login);
-        if (data == null) {
-          emit(const AuthFailed('Unable to login, Please try again later'));
-        } else {
-          await Storage.prefs.setString('token', data);
-          emit(const UserLoggedIn());
-        }
-      } catch (e) {
-        emit(AuthFailed(e.toString()));
+        await Storage.prefs.setString('token', data);
+        emit(const UserLoggedIn());
+      } catch (_) {
+        emit(const AuthFailed(exception));
       }
     });
 
     on<Register>((event, emit) async {
       try {
-        final data = await repository.register(event.register);
-        if (data) {
-          emit(const UserRegistered());
-        } else {
-          emit(const AuthFailed('Unable to register, Please try again later'));
-        }
-      } catch (e) {
-        emit(AuthFailed(e.toString()));
+        await repository.register(event.register);
+        emit(const UserRegistered());
+      } catch (_) {
+        emit(const AuthFailed(exception));
       }
     });
 
@@ -41,8 +33,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       try {
         await Storage.prefs.clear();
         emit(const UserLoggedOut());
-      } catch (e) {
-        emit(AuthFailed(e.toString()));
+      } catch (_) {
+        emit(const AuthFailed(exception));
       }
     });
   }
