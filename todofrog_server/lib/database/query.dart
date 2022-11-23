@@ -1,4 +1,4 @@
-import 'connection.dart';
+import 'package:todofrog_server/database/connection.dart';
 
 class Query {
   static Future<void> create(String value) async {
@@ -19,9 +19,15 @@ class Query {
   static Future<List<Map<String, Map<String, dynamic>>>> read(int id) async {
     final results = await (await Connection.getConnection).mappedResultsQuery(
       '''
-        SELECT id, title, description, priority, is_done
+        SELECT todos.id,
+            title,
+            description,
+            priority,
+            is_done
         from todos
-        WHERE user_id = $id
+            INNER JOIN users ON users.id = todos.user_id
+        WHERE users.id = $id
+        ORDER BY id
       ''',
     );
 
@@ -47,9 +53,7 @@ class Query {
     );
   }
 
-  static Future<bool> checkAccount(
-    String email,
-  ) async {
+  static Future<bool> checkAccount(String email) async {
     final result = await (await Connection.getConnection).query(
       '''
         SELECT COUNT(*)
@@ -61,10 +65,7 @@ class Query {
     return result.first.first != 0;
   }
 
-  static Future<int?> login(
-    String email,
-    String password,
-  ) async {
+  static Future<int?> login(String email, String password) async {
     final result = await (await Connection.getConnection).query(
       '''
         SELECT id

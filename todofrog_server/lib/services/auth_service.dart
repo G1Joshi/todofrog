@@ -1,9 +1,9 @@
 import 'package:dart_frog/dart_frog.dart';
 
-import '../database/query.dart';
-import 'jwt.dart';
+import 'package:todofrog_server/database/query.dart';
+import 'package:todofrog_server/utils/jwt.dart';
 
-class Auth {
+class AuthService {
   static Future<String?> login(Request request) async {
     final req = await request.json() as Map<String, dynamic>;
 
@@ -15,9 +15,15 @@ class Auth {
     }
 
     try {
-      final userId =
-          await Query.login("'${req["email"]}'", "'${req["password"]}'");
-      final token = JwtService.generateToken({'user_id': userId});
+      final userId = await Query.login(
+        "'${req["email"]}'",
+        "'${req["password"]}'",
+      );
+      final token = JwtService.generateToken({
+        'user_id': userId,
+        'email': req['email'],
+        'iat': '0',
+      });
 
       return token;
     } catch (e) {

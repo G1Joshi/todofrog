@@ -16,7 +16,10 @@ class JwtService {
 
   static String generateToken(Map<String, dynamic> payload) {
     final jwt = JWT(payload);
-    final token = jwt.sign(SecretKey(''));
+    final token = jwt.sign(
+      SecretKey(''),
+      expiresIn: const Duration(days: 1),
+    );
     return token;
   }
 

@@ -1,9 +1,9 @@
 import 'package:dart_frog/dart_frog.dart';
 
-import '../auth/jwt.dart';
-import 'query.dart';
+import 'package:todofrog_server/database/query.dart';
+import 'package:todofrog_server/utils/jwt.dart';
 
-class Database {
+class TodoService {
   static Future<bool> create(Request request) async {
     final headers = request.headers;
     final payload = JwtService.getPayload(headers);

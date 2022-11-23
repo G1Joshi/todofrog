@@ -1,4 +1,4 @@
-import 'connection.dart';
+import 'package:todofrog_server/database/connection.dart';
 
 class Tables {
   static Future<void> tableTodos() async {
@@ -6,7 +6,7 @@ class Tables {
       '''
         CREATE TABLE IF NOT EXISTS todos (
             id serial,
-            user_id integer NOT NULL,
+            user_id integer NOT NULL references users(id),
             title text NOT NULL,
             description text NOT NULL,
             priority integer NOT NULL,
@@ -20,7 +20,7 @@ class Tables {
     await (await Connection.getConnection).query(
       '''
         CREATE TABLE IF NOT EXISTS users (
-            id serial,
+            id serial primary key,
             name text NOT NULL,
             email text NOT NULL,
             password text NOT NULL,
