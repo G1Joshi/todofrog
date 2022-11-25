@@ -14,11 +14,14 @@ class JwtService {
     return token;
   }
 
-  static String generateToken(Map<String, dynamic> payload) {
+  static String generateToken(
+    Map<String, dynamic> payload, [
+    Duration? expiry,
+  ]) {
     final jwt = JWT(payload);
     final token = jwt.sign(
       SecretKey(''),
-      expiresIn: const Duration(days: 1),
+      expiresIn: expiry,
     );
     return token;
   }

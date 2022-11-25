@@ -25,7 +25,7 @@ class AuthController {
           statusCode: HttpStatus.created,
           body: GeneralResponse(
             status: true,
-            data: {'token': data},
+            data: data,
           ),
         );
       }

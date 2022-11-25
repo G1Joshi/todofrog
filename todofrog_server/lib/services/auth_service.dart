@@ -4,7 +4,7 @@ import 'package:todofrog_server/database/query.dart';
 import 'package:todofrog_server/utils/jwt.dart';
 
 class AuthService {
-  static Future<String?> login(Request request) async {
+  static Future<Map<String, String>?> login(Request request) async {
     final req = await request.json() as Map<String, dynamic>;
 
     if (req['email'] == null) {
@@ -19,13 +19,24 @@ class AuthService {
         "'${req["email"]}'",
         "'${req["password"]}'",
       );
-      final token = JwtService.generateToken({
+
+      final accessToken = JwtService.generateToken(
+        {
+          'user_id': userId,
+          'email': req['email'],
+        },
+        const Duration(days: 1),
+      );
+
+      final refreshToken = JwtService.generateToken({
         'user_id': userId,
         'email': req['email'],
-        'iat': '0',
       });
 
-      return token;
+      return {
+        'access_token': accessToken,
+        'refresh_token': refreshToken,
+      };
     } catch (e) {
       return null;
     }
