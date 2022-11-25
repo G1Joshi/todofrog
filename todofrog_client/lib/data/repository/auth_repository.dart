@@ -7,7 +7,8 @@ class AuthRepo {
     final data = GeneralResponse.fromJson(response);
 
     if (data.status) {
-      final result = (data.data as Map<String, dynamic>?)!['token'] as String;
+      final result =
+          (data.data as Map<String, dynamic>?)!['access_token'] as String;
       return result;
     } else {
       throw Exception(data.message);

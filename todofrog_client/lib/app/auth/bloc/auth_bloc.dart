@@ -13,7 +13,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<Login>((event, emit) async {
       try {
         final data = await repository.login(event.login);
-        await Storage.prefs.setString('token', data);
+        await Storage.prefs.setString('access_token', data);
         emit(const UserLoggedIn());
       } catch (_) {
         emit(const AuthFailed(exception));
